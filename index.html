@@ -3,223 +3,303 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#080e1b">
-<link rel="manifest" href="./manifest.json">
-<title>NUSA FX AI</title>
+<title>NUSA FX AI V6</title>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080e1b;color:#edf3ff;font-family:Arial,sans-serif;padding:14px}
-header,section{background:#121d30;border:1px solid #263650;border-radius:14px;padding:15px;margin-bottom:12px}
-h2{color:#48c7ff;margin:0 0 6px}
-small,.muted{color:#8fa1bd;font-size:12px}
-select,button{width:100%;padding:12px;border-radius:9px;background:#1c2a42;color:white;border:1px solid #344560}
-button{background:#147de5;border:0;font-weight:bold;margin-top:12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.box{background:#1b2940;padding:13px;border-radius:10px}
-.box span{font-size:12px;color:#95a8c5}
-.box strong{display:block;font-size:18px;margin-top:8px;color:#4cc8ff;word-break:break-word}
-.price{font-size:27px;font-weight:bold;color:#4cc8ff;margin:10px 0}
-canvas{display:block;width:100%;height:210px}
+body{
+ margin:0;background:#080e1b;color:#e8eef8;
+ font-family:Arial,sans-serif;padding:15px;
+}
+.container{max-width:800px;margin:auto}
+header{
+ background:#101a2b;padding:18px;border-radius:16px;
+ border:1px solid #26364f;margin-bottom:15px
+}
+h1{margin:0;color:#35d5b0;font-size:24px}
+.subtitle{color:#8494aa;font-size:12px;margin-top:6px}
+.card{
+ background:#101a2b;border:1px solid #26364f;
+ border-radius:15px;padding:15px;margin-bottom:14px
+}
+.label{font-size:12px;color:#8fa1b8;margin-bottom:8px}
+select,button,textarea{
+ width:100%;padding:12px;border-radius:10px;
+ background:#17243a;color:#fff;border:1px solid #30435e;
+ font-size:14px
+}
+button{background:#10b890;border:none;color:#061b17;font-weight:bold}
+button:active{opacity:.7}
+.controls{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px
+}
+.chartbox{width:100%;height:280px;position:relative}
+canvas{width:100%;height:100%;display:block}
+.stats{
+ display:grid;grid-template-columns:repeat(2,1fr);gap:10px
+}
+.stat{
+ background:#17243a;border-radius:12px;padding:13px
+}
+.stat small{color:#8fa1b8;display:block;margin-bottom:8px}
+.stat strong{font-size:21px}
+.green{color:#35d5b0}
+.red{color:#ff6b7f}
+.note{font-size:12px;color:#9aabc1;line-height:1.6}
+textarea{height:100px;resize:vertical;margin-bottom:10px}
+footer{text-align:center;color:#667991;font-size:11px;padding:20px}
 </style>
 </head>
 
 <body>
+<div class="container">
 
 <header>
-<h2>🇮🇩 NUSA FX AI</h2>
-<small>Karya Anak Muda Indonesia • Simulator edukasi</small>
+<h1>🇮🇩 NUSA FX AI V6</h1>
+<div class="subtitle">Karya Anak Muda Indonesia • Educational Simulator</div>
 </header>
 
-<section>
-<label>PAIR SIMULASI</label>
+<div class="card">
+<div class="controls">
+<div>
+<div class="label">PAIR SIMULASI</div>
 <select id="pair">
-<option value="1.08500">EUR/USD</option>
-<option value="1.27000">GBP/USD</option>
-<option value="150.000">USD/JPY</option>
-<option value="0.66000">AUD/USD</option>
-<option value="0.90000">USD/CHF</option>
-<option value="2300.00">XAU/USD</option>
+<option value="EUR/USD">EUR/USD</option>
+<option value="GBP/USD">GBP/USD</option>
+<option value="USD/JPY">USD/JPY</option>
+<option value="AUD/USD">AUD/USD</option>
+<option value="USD/CHF">USD/CHF</option>
 </select>
-
-<br><br>
-
-<label>TIMEFRAME</label>
-<select id="tf">
-<option>M1</option>
-<option>M5</option>
-<option>M15</option>
-<option>M30</option>
-<option>H1</option>
-<option>H4</option>
-<option>D1</option>
+</div>
+<div>
+<div class="label">TIMEFRAME</div>
+<select id="timeframe">
+<option>1 Menit</option>
+<option>5 Menit</option>
+<option>15 Menit</option>
+<option>1 Jam</option>
+<option>4 Jam</option>
+<option>1 Hari</option>
 </select>
-
-<p class="muted">Harga simulasi — bukan harga pasar</p>
-<div class="price" id="price">Memuat...</div>
-</section>
-
-<section>
-<strong>Grafik simulasi</strong>
-<canvas id="chart"></canvas>
-<small class="muted">Grafik demo • bukan data live</small>
-</section>
-
-<section>
-<strong>INDIKATOR</strong>
-<div class="grid">
-<div class="box"><span>RSI (14)</span><strong id="rsi">--</strong></div>
-<div class="box"><span>EMA (20)</span><strong id="ema">--</strong></div>
-<div class="box"><span>MACD</span><strong id="macd">--</strong></div>
-<div class="box"><span>MOMENTUM</span><strong id="mom">--</strong></div>
+</div>
+</div>
 </div>
 
-<button onclick="updateAll()">⟳ PERBARUI SIMULASI</button>
-</section>
+<div class="card">
+<div class="label">GRAFIK CANDLESTICK SIMULASI</div>
+<div class="chartbox">
+<canvas id="chart"></canvas>
+</div>
+<button onclick="refreshChart()">⟳ Buat Simulasi Baru</button>
+<p class="note">Grafik ini menggunakan angka buatan/random, bukan harga pasar real-time.</p>
+</div>
 
-<section>
-<strong>Ringkasan simulasi</strong>
-<p id="result" class="muted">Menghitung...</p>
-</section>
+<div class="card">
+<div class="label">INDIKATOR PEMBELAJARAN</div>
+<div class="stats">
+<div class="stat">
+<small>EMA 20</small>
+<strong id="ema20">-</strong>
+</div>
+<div class="stat">
+<small>EMA 50</small>
+<strong id="ema50">-</strong>
+</div>
+<div class="stat">
+<small>RSI 14</small>
+<strong id="rsi">-</strong>
+</div>
+<div class="stat">
+<small>MACD</small>
+<strong id="macd">-</strong>
+</div>
+</div>
+</div>
 
-<section>
-<strong>Status aplikasi</strong>
-<p style="color:#42dca0">● SIMULATOR AKTIF</p>
-<small class="muted">Offline • Data buatan • Tidak melakukan transaksi</small>
-<p id="offlineStatus" class="muted">Pengecekan fitur offline...</p>
-</section>
+<div class="card">
+<div class="label">CATATAN BELAJAR</div>
+<textarea id="notes" placeholder="Tulis hasil pengamatan grafik di sini..."></textarea>
+<button onclick="saveNotes()">Simpan Catatan</button>
+<p id="saved" class="note"></p>
+</div>
 
-<footer style="text-align:center;color:#72839f;font-size:11px;padding:12px">
-NUSA FX AI V5 • Karya Anak Muda Indonesia 🇮🇩
-</footer>
+<div class="card">
+<div class="label">TENTANG PANEL</div>
+<p class="note">
+NUSA FX AI V6 adalah alat pembelajaran grafik dan indikator.
+Seluruh data harga pada versi ini bersifat simulasi.
+EMA, RSI, dan MACD adalah indikator matematis,
+bukan alat untuk memastikan arah harga di masa depan.
+</p>
+</div>
+
+<footer>NUSA FX AI • V6 • INDONESIA</footer>
+</div>
 
 <script>
-const chart=document.getElementById("chart");
-const ctx=chart.getContext("2d");
-let data=[];
-let base=1.085;
+const canvas=document.getElementById("chart");
+const ctx=canvas.getContext("2d");
 
-function generate(){
- data=[];
- let p=base;
- for(let i=0;i<50;i++){
-  p+=(Math.random()-.5)*base*.0015;
-  data.push(p);
+let candles=[];
+let price=1.1000;
+
+function generateData(){
+ candles=[];
+ price=1.1000;
+
+ for(let i=0;i<80;i++){
+  let open=price;
+  let change=(Math.random()-.48)*.003;
+  let close=open+change;
+  let high=Math.max(open,close)+Math.random()*.001;
+  let low=Math.min(open,close)-Math.random()*.001;
+
+  candles.push({open,close,high,low});
+  price=close;
  }
+ calculateIndicators();
+ drawChart();
 }
 
-function calcEMA(a,n){
- let k=2/(n+1),v=a[0];
- for(let i=1;i<a.length;i++){
-  v=a[i]*k+v*(1-k);
- }
- return v;
+function closes(){
+ return candles.map(c=>c.close);
 }
 
-function calcRSI(a,n=14){
- if(a.length<=n)return 50;
- let up=0,down=0;
- for(let i=a.length-n;i<a.length;i++){
-  let d=a[i]-a[i-1];
-  if(d>0)up+=d;
-  else down-=d;
+function EMA(data,period){
+ if(!data.length)return 0;
+ let k=2/(period+1);
+ let value=data[0];
+ for(let i=1;i<data.length;i++){
+  value=data[i]*k+value*(1-k);
  }
- if(down===0)return up===0?50:100;
- let rs=up/down;
+ return value;
+}
+
+function RSI(data,period=14){
+ if(data.length<=period)return 50;
+ let gain=0,loss=0;
+
+ for(let i=data.length-period;i<data.length;i++){
+  let change=data[i]-data[i-1];
+  if(change>0)gain+=change;
+  else loss-=change;
+ }
+
+ if(loss===0)return 100;
+ let rs=(gain/period)/(loss/period);
  return 100-(100/(1+rs));
 }
 
-function draw(){
- let w=chart.clientWidth;
- let h=chart.clientHeight;
+function MACD(data){
+ let fast=EMA(data,12);
+ let slow=EMA(data,26);
+ return fast-slow;
+}
+
+function calculateIndicators(){
+ let data=closes();
+
+ document.getElementById("ema20").textContent=EMA(data,20).toFixed(5);
+ document.getElementById("ema50").textContent=EMA(data,50).toFixed(5);
+ document.getElementById("rsi").textContent=RSI(data).toFixed(2);
+ document.getElementById("macd").textContent=MACD(data).toFixed(5);
+}
+
+function drawChart(){
+ let w=canvas.clientWidth;
+ let h=canvas.clientHeight;
  let dpr=window.devicePixelRatio||1;
 
- chart.width=w*dpr;
- chart.height=h*dpr;
+ canvas.width=w*dpr;
+ canvas.height=h*dpr;
  ctx.setTransform(dpr,0,0,dpr,0,0);
+
  ctx.clearRect(0,0,w,h);
 
- if(!data.length)return;
+ let values=candles.flatMap(c=>[c.high,c.low]);
+ let max=Math.max(...values);
+ let min=Math.min(...values);
+ let range=max-min||1;
 
- let lo=Math.min(...data);
- let hi=Math.max(...data);
- let step=w/data.length;
+ function y(v){
+  return h-((v-min)/range)*(h-20)-10;
+ }
 
- ctx.strokeStyle="#263750";
- for(let j=0;j<5;j++){
-  let y=j*h/4;
+ // Grid
+ ctx.strokeStyle="#1e2d43";
+ ctx.lineWidth=1;
+
+ for(let i=0;i<5;i++){
+  let yy=h*i/4;
   ctx.beginPath();
-  ctx.moveTo(0,y);
-  ctx.lineTo(w,y);
+  ctx.moveTo(0,yy);
+  ctx.lineTo(w,yy);
   ctx.stroke();
  }
 
- ctx.beginPath();
- ctx.strokeStyle="#4cc8ff";
- ctx.lineWidth=2;
+ // Candle
+ let step=w/candles.length;
+ let bodyWidth=Math.max(2,step*.55);
 
- data.forEach((p,i)=>{
-  let y=h-((p-lo)/(hi-lo||1))*(h-10)-5;
-  let x=i*step;
-  if(i===0)ctx.moveTo(x,y);
-  else ctx.lineTo(x,y);
+ candles.forEach((c,i)=>{
+  let x=i*step+step/2;
+  let up=c.close>=c.open;
+  let color=up?"#35d5b0":"#ff6b7f";
+
+  ctx.strokeStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(x,y(c.high));
+  ctx.lineTo(x,y(c.low));
+  ctx.stroke();
+
+  ctx.fillStyle=color;
+  let top=y(Math.max(c.open,c.close));
+  let bottom=y(Math.min(c.open,c.close));
+  ctx.fillRect(x-bodyWidth/2,top,bodyWidth,Math.max(2,bottom-top));
+ });
+
+ // EMA 20 line
+ let data=closes();
+ let k=2/21;
+ let ema=data[0];
+ ctx.beginPath();
+ ctx.strokeStyle="#ffd166";
+ ctx.lineWidth=1.5;
+
+ data.forEach((v,i)=>{
+  ema=i===0?v:v*k+ema*(1-k);
+  let x=i*step+step/2;
+  if(i===0)ctx.moveTo(x,y(ema));
+  else ctx.lineTo(x,y(ema));
  });
  ctx.stroke();
 }
 
-function updateAll(){
+function refreshChart(){
+ generateData();
+}
+
+function saveNotes(){
+ let text=document.getElementById("notes").value;
  try{
-  base=Number(document.getElementById("pair").value);
-  generate();
-
-  let last=data[data.length-1];
-  let prev=data[data.length-6];
-  let e=calcEMA(data,20);
-  let r=calcRSI(data,14);
-  let m=last-prev;
-  let mac=calcEMA(data,12)-calcEMA(data,26);
-
-  document.getElementById("price").textContent=last.toFixed(5);
-  document.getElementById("rsi").textContent=r.toFixed(2);
-  document.getElementById("ema").textContent=e.toFixed(5);
-  document.getElementById("macd").textContent=mac.toFixed(6);
-  document.getElementById("mom").textContent=
-    m>0?"Positif":m<0?"Negatif":"Netral";
-
-  document.getElementById("result").textContent=
-    "Data demo berhasil dihitung. RSI "+r.toFixed(2)+
-    ". Harga simulasi "+(last>e?"di atas":"di bawah")+
-    " EMA20. Nilai ini bukan prediksi harga masa depan.";
-
-  draw();
- }catch(error){
-  document.getElementById("result").textContent=
-   "Terjadi error: "+error.message;
+  localStorage.setItem("nusa_notes",text);
+  document.getElementById("saved").textContent="Catatan berhasil disimpan di perangkat.";
+ }catch(e){
+  document.getElementById("saved").textContent="Penyimpanan tidak tersedia.";
  }
 }
 
-document.getElementById("pair").onchange=updateAll;
-document.getElementById("tf").onchange=updateAll;
-window.addEventListener("resize",draw);
+document.getElementById("pair").onchange=refreshChart;
+document.getElementById("timeframe").onchange=refreshChart;
+window.addEventListener("resize",drawChart);
 
-updateAll();
+try{
+ document.getElementById("notes").value=localStorage.getItem("nusa_notes")||"";
+}catch(e){}
 
-// Pendaftaran fitur offline
-if("serviceWorker" in navigator){
- window.addEventListener("load",function(){
-  navigator.serviceWorker.register("./sw.js")
-   .then(function(){
-    document.getElementById("offlineStatus").textContent=
-     "Service Worker terdaftar (jika server mendukung).";
-   })
-   .catch(function(){
-    document.getElementById("offlineStatus").textContent=
-     "Service Worker memerlukan HTTPS atau localhost.";
-   });
- });
-}
+generateData();
 </script>
-
 </body>
 </html>
