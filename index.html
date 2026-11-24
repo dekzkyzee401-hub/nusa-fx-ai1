@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080e1b">
+<link rel="manifest" href="./manifest.json">
+<title>NUSA FX AI</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080e1b;color:#edf3ff;font-family:Arial,sans-serif;padding:14px}
+header,section{background:#121d30;border:1px solid #263650;border-radius:14px;padding:15px;margin-bottom:12px}
+h2{color:#48c7ff;margin:0 0 6px}
+small,.muted{color:#8fa1bd;font-size:12px}
+select,button{width:100%;padding:12px;border-radius:9px;background:#1c2a42;color:white;border:1px solid #344560}
+button{background:#147de5;border:0;font-weight:bold;margin-top:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.box{background:#1b2940;padding:13px;border-radius:10px}
+.box span{font-size:12px;color:#95a8c5}
+.box strong{display:block;font-size:18px;margin-top:8px;color:#4cc8ff;word-break:break-word}
+.price{font-size:27px;font-weight:bold;color:#4cc8ff;margin:10px 0}
+canvas{display:block;width:100%;height:210px}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>🇮🇩 NUSA FX AI</h2>
+<small>Karya Anak Muda Indonesia • Simulator edukasi</small>
+</header>
+
+<section>
+<label>PAIR SIMULASI</label>
+<select id="pair">
+<option value="1.08500">EUR/USD</option>
+<option value="1.27000">GBP/USD</option>
+<option value="150.000">USD/JPY</option>
+<option value="0.66000">AUD/USD</option>
+<option value="0.90000">USD/CHF</option>
+<option value="2300.00">XAU/USD</option>
+</select>
+
+<br><br>
+
+<label>TIMEFRAME</label>
+<select id="tf">
+<option>M1</option>
+<option>M5</option>
+<option>M15</option>
+<option>M30</option>
+<option>H1</option>
+<option>H4</option>
+<option>D1</option>
+</select>
+
+<p class="muted">Harga simulasi — bukan harga pasar</p>
+<div class="price" id="price">Memuat...</div>
+</section>
+
+<section>
+<strong>Grafik simulasi</strong>
+<canvas id="chart"></canvas>
+<small class="muted">Grafik demo • bukan data live</small>
+</section>
+
+<section>
+<strong>INDIKATOR</strong>
+<div class="grid">
+<div class="box"><span>RSI (14)</span><strong id="rsi">--</strong></div>
+<div class="box"><span>EMA (20)</span><strong id="ema">--</strong></div>
+<div class="box"><span>MACD</span><strong id="macd">--</strong></div>
+<div class="box"><span>MOMENTUM</span><strong id="mom">--</strong></div>
+</div>
+
+<button onclick="updateAll()">⟳ PERBARUI SIMULASI</button>
+</section>
+
+<section>
+<strong>Ringkasan simulasi</strong>
+<p id="result" class="muted">Menghitung...</p>
+</section>
+
+<section>
+<strong>Status aplikasi</strong>
+<p style="color:#42dca0">● SIMULATOR AKTIF</p>
+<small class="muted">Offline • Data buatan • Tidak melakukan transaksi</small>
+<p id="offlineStatus" class="muted">Pengecekan fitur offline...</p>
+</section>
+
+<footer style="text-align:center;color:#72839f;font-size:11px;padding:12px">
+NUSA FX AI V5 • Karya Anak Muda Indonesia 🇮🇩
+</footer>
+
+<script>
+const chart=document.getElementById("chart");
+const ctx=chart.getContext("2d");
+let data=[];
+let base=1.085;
+
+function generate(){
+ data=[];
+ let p=base;
+ for(let i=0;i<50;i++){
+  p+=(Math.random()-.5)*base*.0015;
+  data.push(p);
+ }
+}
+
+function calcEMA(a,n){
+ let k=2/(n+1),v=a[0];
+ for(let i=1;i<a.length;i++){
+  v=a[i]*k+v*(1-k);
+ }
+ return v;
+}
+
+function calcRSI(a,n=14){
+ if(a.length<=n)return 50;
+ let up=0,down=0;
+ for(let i=a.length-n;i<a.length;i++){
+  let d=a[i]-a[i-1];
+  if(d>0)up+=d;
+  else down-=d;
+ }
+ if(down===0)return up===0?50:100;
+ let rs=up/down;
+ return 100-(100/(1+rs));
+}
+
+function draw(){
+ let w=chart.clientWidth;
+ let h=chart.clientHeight;
+ let dpr=window.devicePixelRatio||1;
+
+ chart.width=w*dpr;
+ chart.height=h*dpr;
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.clearRect(0,0,w,h);
+
+ if(!data.length)return;
+
+ let lo=Math.min(...data);
+ let hi=Math.max(...data);
+ let step=w/data.length;
+
+ ctx.strokeStyle="#263750";
+ for(let j=0;j<5;j++){
+  let y=j*h/4;
+  ctx.beginPath();
+  ctx.moveTo(0,y);
+  ctx.lineTo(w,y);
+  ctx.stroke();
+ }
+
+ ctx.beginPath();
+ ctx.strokeStyle="#4cc8ff";
+ ctx.lineWidth=2;
+
+ data.forEach((p,i)=>{
+  let y=h-((p-lo)/(hi-lo||1))*(h-10)-5;
+  let x=i*step;
+  if(i===0)ctx.moveTo(x,y);
+  else ctx.lineTo(x,y);
+ });
+ ctx.stroke();
+}
+
+function updateAll(){
+ try{
+  base=Number(document.getElementById("pair").value);
+  generate();
+
+  let last=data[data.length-1];
+  let prev=data[data.length-6];
+  let e=calcEMA(data,20);
+  let r=calcRSI(data,14);
+  let m=last-prev;
+  let mac=calcEMA(data,12)-calcEMA(data,26);
+
+  document.getElementById("price").textContent=last.toFixed(5);
+  document.getElementById("rsi").textContent=r.toFixed(2);
+  document.getElementById("ema").textContent=e.toFixed(5);
+  document.getElementById("macd").textContent=mac.toFixed(6);
+  document.getElementById("mom").textContent=
+    m>0?"Positif":m<0?"Negatif":"Netral";
+
+  document.getElementById("result").textContent=
+    "Data demo berhasil dihitung. RSI "+r.toFixed(2)+
+    ". Harga simulasi "+(last>e?"di atas":"di bawah")+
+    " EMA20. Nilai ini bukan prediksi harga masa depan.";
+
+  draw();
+ }catch(error){
+  document.getElementById("result").textContent=
+   "Terjadi error: "+error.message;
+ }
+}
+
+document.getElementById("pair").onchange=updateAll;
+document.getElementById("tf").onchange=updateAll;
+window.addEventListener("resize",draw);
+
+updateAll();
+
+// Pendaftaran fitur offline
+if("serviceWorker" in navigator){
+ window.addEventListener("load",function(){
+  navigator.serviceWorker.register("./sw.js")
+   .then(function(){
+    document.getElementById("offlineStatus").textContent=
+     "Service Worker terdaftar (jika server mendukung).";
+   })
+   .catch(function(){
+    document.getElementById("offlineStatus").textContent=
+     "Service Worker memerlukan HTTPS atau localhost.";
+   });
+ });
+}
+</script>
+
+</body>
+</html>
